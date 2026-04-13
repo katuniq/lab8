@@ -1,480 +1,216 @@
-# Architecture — LAB 08: RAG Pipeline
+# Architecture — RAG Pipeline (Day 08 Lab)
 
-> **Last Updated:** 2026-04-13  
-> **Status:** Baseline complete, ready for Sprint 3 tuning
+> Template: Điền vào các mục này khi hoàn thành từng sprint.
+> Deliverable của Documentation Owner.
 
----
-
-## System Overview
+## 1. Tổng quan kiến trúc
 
 ```
-User Query
+[Raw Docs]
     ↓
-[Preprocessing] — Normalize & tokenize input
+[index.py: Preprocess → Chunk → Embed → Store]
     ↓
-[Retrieval] — Dense / Hybrid / Sparse search
-    ↓ (Optional)
-[Reranking] — Cross-encoder re-scoring
+[ChromaDB Vector Store]
     ↓
-[Context Assembly] — Format retrieved chunks with citations
+[rag_answer.py: Query → Retrieve → Rerank → Generate]
     ↓
-[Generation] — LLM grounded answer with citations
+[Grounded Answer + Citation]
+```
+
+**Mô tả ngắn gọn:**
+> RAG (Retrieval-Augmented Generation) pipeline xử lý các câu hỏi về chính sách công ty (HR, IT, CS) bằng cách tìm kiếm tài liệu liên quan thông qua dense embedding, sau đó truyền context cho LLM để sinh câu trả lời có trích dẫn. Hệ thống giúp nhân viên nhanh chóng tìm kiếm thông tin chính xác từ các tài liệu nội bộ mà không cần đọc toàn bộ tài liệu.
+
+---
+
+## 2. Indexing Pipeline (Sprint 1)
+
+### Tài liệu được index
+| File | Nguồn | Department | Số chunk |
+|------|-------|-----------|----------|
+| `policy_refund_v4.txt` | policy/refund-v4.pdf | CS | 6 |
+| `sla_p1_2026.txt` | support/sla-p1-2026.pdf | IT | 11 |
+| `access_control_sop.txt` | it/access-control-sop.md | IT Security | 7 |
+| `it_helpdesk_faq.txt` | support/helpdesk-faq.md | IT | 3 |
+| `hr_leave_policy.txt` | hr/leave-policy-2026.pdf | HR | 2 |
+| **Tổng cộng** | **5 documents** | **Covered** | **29 chunks** |
+
+### Quyết định chunking
+| Tham số | Giá trị | Lý do |
+|---------|---------|-------|
+| Chunk size | 400 tokens | Balanced: long enough for context, short enough for retrieval precision |
+| Overlap | 50 tokens | Preserve continuity across chunk boundaries |
+| Chunking strategy | Paragraph-based splitting with section preservation | Maintains policy structure without cutting mid-requirement |
+| Metadata fields | source, section, department, effective_date, access | Enable filtering by document version, source citation, and access control |
+| **Metadata coverage** | **100%** | All 29 chunks have effective_date (no missing values) |
+
+### Embedding model
+- **Model**: OpenAI `text-embedding-3-small` (1536 dimensions, multilingual)
+- **Vector store**: ChromaDB (PersistentClient with local persistence at `chroma_db/`)
+- **Similarity metric**: Cosine (default for dense embeddings)
+
+---
+
+## 3. Retrieval Pipeline (Sprint 2 + 3)
+
+### Baseline (Sprint 2)
+| Tham số | Giá trị |
+|---------|--------|
+| Strategy | Dense embedding similarity (ChromaDB cosine) |
+| Top-k search | 10 |
+| Top-k select | 3 (after semantic relevance sorting) |
+| Rerank | No |
+| **Overall Score** | **4.53/5** |
+| Faithfulness | 4.40/5 |
+| Relevance | 4.70/5 |
+| Context Recall | 5.00/5 (perfect) |
+| Completeness | 4.00/5 |
+
+### Variant (Sprint 3)
+| Tham số | Giá trị | Thay đổi so với baseline |
+|---------|---------|------------------------|
+| Strategy | **Hybrid (60% Dense + 40% BM25 sparse)** | Dense → Hybrid with RRF |
+| Top-k search | 10 | Same |
+| Top-k select | 3 | Same (after rerank) |
+| Rerank | **Yes (Cross-encoder MS-MARCO)** | No → Yes |
+| Query transform | None | N/A |
+| **Overall Score** | **4.30/5** | **-0.23 (-5%)** |
+| Faithfulness | 4.20/5 | -0.20 |
+| Relevance | 4.30/5 | -0.40 |
+| Context Recall | 5.00/5 | 0 |
+| Completeness | 3.70/5 | -0.30 |
+
+**Lý do thử variant này:**
+> Hypothesis: Dense embedding alone might miss keyword queries (error codes like ERR-403-AUTH). Hybrid retrieval (BM25 + semantic) could capture both natural language and technical terms. Cross-encoder rerank could refine selection.
+
+**Kết luận: VARIANT REJECTED**
+> Performance degradation -5% vs baseline. Root cause:
+> - BM25 keyword matching introduces noise for policy documents (semantic-heavy corpus)
+> - Cross-encoder tuned for web search (MS-MARCO), not policy Q&A
+> - q09 failure: Variant scored 1 vs baseline 5 on out-of-domain query
+> - **Keep baseline (Dense-only) for production**
+
+---
+
+## 4. Generation (Sprint 2)
+
+### Grounded Prompt Template
+```
+Answer only from the retrieved context below.
+If the context is insufficient, say you do not know.
+Cite the source field when possible.
+Keep your answer short, clear, and factual.
+
+Question: {query}
+
+Context:
+[1] {source} | {section} | score={score}
+{chunk_text}
+
+[2] ...
+
+Answer:
+```
+
+### LLM Configuration
+| Tham số | Giá trị | Lý do |
+|---------|--------|-------|
+| Model | OpenAI `gpt-4o-mini` | Fast, cost-effective, multilingual Vietnamese support |
+| Temperature | 0 | Deterministic output for consistent evaluation scoring |
+| Max tokens | 512 | Sufficient for policy Q&A (avg 150-300 tokens) |
+| System prompt | "Answer only from retrieved context. If insufficient, abstain." | Enforce grounding, prevent hallucination |
+
+---
+
+## 5. Failure Mode Checklist
+
+> Dùng khi debug — kiểm tra lần lượt: index → retrieval → generation
+
+| Failure Mode | Triệu chứng | Cách kiểm tra |
+|-------------|-------------|---------------|
+| Index lỗi | Retrieve về docs cũ / sai version | `inspect_metadata_coverage()` trong index.py |
+| Chunking tệ | Chunk cắt giữa điều khoản | `list_chunks()` và đọc text preview |
+| Retrieval lỗi | Không tìm được expected source | `score_context_recall()` trong eval.py |
+| Generation lỗi | Answer không grounded / bịa | `score_faithfulness()` trong eval.py |
+| Token overload | Context quá dài → lost in the middle | Kiểm tra độ dài context_block |
+
+---
+
+## 7. Evaluation Results (Sprint 4)
+
+### Summary: Baseline Wins
+| Metric | Baseline | Variant | Winner |
+|--------|----------|---------|--------|
+| **Overall** | **4.53/5** | **4.30/5** | Baseline |
+| Faithfulness | 4.40/5 | 4.20/5 | Baseline |
+| Relevance | 4.70/5 | 4.30/5 | Baseline |
+| Context Recall | 5.00/5 | 5.00/5 | Tie |
+| Completeness | 4.00/5 | 3.70/5 | Baseline |
+
+### Key Insights
+**Strengths of Baseline (Dense-only):**
+- Perfect context recall (5.00/5) - retrieves all expected sources
+- Best relevance (4.70/5) - semantic embeddings align well with policy queries
+- Good faithfulness (4.40/5) - model grounds answers in context
+
+**Failure Modes (affecting both baseline & variant):**
+- q07: Completeness=2/5 (answer too generic for "Approval Matrix")
+- q10: Faithfulness=1/5, Relevance=2/5 (VIP refund process not in corpus)
+- q09: Variant catastrophically failed (1 vs 5 faithfulness) on error code query
+
+**Why Variant Failed:**
+1. BM25 hybrid fusion dilutes dense semantic signal for policy corpus
+2. Cross-encoder (MS-MARCO) optimized for web search, not enterprise Q&A
+3. Increased complexity without quality gain (added inference latency)
+
+### Recommendation
+**Keep Baseline (Dense-only) as production configuration.**
+
+For future improvements (if time permits):
+- A: Query-aware chunk selection (dense retrieve top-10 → lightweight rerank)
+- B: Hierarchical indexing (summary chunks + detail chunks)
+- C: Prompt engineering for completeness (explicit instruction for exceptions)
+
+---
+
+## 8. Diagram
+
+```
+[Raw Docs]
     ↓
-[Output] — Answer with {sources, confidence, chunks_used}
+[Preprocessor: Split by paragraphs]
+    ↓
+[Chunker: 400 tokens + 50 overlap]
+    ↓
+[Embedding: text-embedding-3-small]
+    ↓
+[ChromaDB: Store vectors + metadata]
+    ↓
+======== QUERY TIME ========
+    ↓
+[User Query: Vietnamese text]
+    ↓
+[Embed query: text-embedding-3-small]
+    ↓
+[Vector search: Cosine similarity]
+    ↓
+[Select top-3]
+    ↓
+[Build context block with citations]
+    ↓
+[GPT-4o-mini (temp=0)]
+    ↓
+[Grounded Answer + [Source]]
 ```
 
 ---
 
-## 1. Index Pipeline (Sprint 1)
-
-**Input:** 5 policy documents in `data/docs/`
-**Output:** 29 chunks in ChromaDB
-
-### Preprocessing
-- **Strategy:** Extract section headings as delimiters
-- **Metadata:** Extracted from document headers
-  - `source`: Document filename (e.g., `it/access-control-sop.md`)
-  - `section`: Heading of the chunk (e.g., `Section 2: Approval Levels`)
-  - `department`: HR / IT / CS (inferred from source)
-  - `effective_date`: Valid from date (default `2026-01-01`)
-  - `access`: Access level (internal / confidential / public)
-
-### Chunking Strategy
-```
-Chunk Size: 400 tokens (≈ 1600 characters)
-Overlap: 50 tokens
-Strategy: Logical sections with full context
-Result: 29 chunks across 5 documents
-```
-
-**Rationale:**
-- 400 tokens balances information density vs. retrieval precision
-- Overlap of 50 ensures context continuity
-- Logical sections prevent cutting mid-sentence
-
-### Embedding
-- **Provider:** OpenAI `text-embedding-3-small`
-- **Model:** Optimized for semantic similarity
-- **Stored in:** ChromaDB (local, persistent)
-
----
-
-## 2. Retrieval Strategy (Sprint 2 & 3)
-
-### Baseline: Dense Retrieval
-
-**Score: 4.20/5** | Faithfulness: 2.60/5 | **Relevance: 4.40/5** | Completeness: 5.00/5 | Context Recall: 4.80/5
-
-```python
-def retrieve_dense(query: str, top_k: int = 10):
-    query_embedding = get_embedding(query)  # OpenAI text-embedding-3-small
-    results = chromadb_collection.query(
-        query_embeddings=[query_embedding],
-        n_results=top_k,
-        include=["documents", "metadatas", "distances"]
-    )
-    # ChromaDB: score = 1 - distance (cosine similarity)
-```
-
-**Why It Wins:**
-- Captures semantic meaning, synonym matching
-- Relevance is 4.40/5 (excellent query-answer alignment)
-- Fast and simple (no complex indexing)
-- Corpus is naturally semantic-friendly (policies)
-
-### Variant A: Hybrid Retrieval (Dense + BM25) ❌ NOT CHOSEN
-
-**Score: 4.08/5** (-0.12 vs baseline) | Relevance: 4.00/5 (-0.40 drop)
-
-```python
-def retrieve_hybrid(query, dense_weight=0.6, sparse_weight=0.4):
-    dense_results = retrieve_dense(query, 10)      # Semantic search
-    sparse_results = retrieve_sparse(query, 10)    # BM25 keywords
-    
-    # Merge by Reciprocal Rank Fusion
-    # RRF_score = 0.6/(60 + dense_rank) + 0.4/(60 + sparse_rank)
-```
-
-**Why It Failed:**
-- Relevance dropped -0.40 (BM25 keyword noise)
-- No improvement in Context Recall (4.80 stayed same)
-- Added complexity but hurt performance
-- Dense alone is optimal for this corpus
-
----
-
-## 3. Generation Pipeline (Sprint 2)
-
-### LLM Function: `call_llm()`
-
-```python
-def call_llm(query: str, context_block: str, model: str = "gpt-4o-mini") -> str:
-    from openai import OpenAI
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    
-    SYSTEM_PROMPT = """Bạn là chuyên gia support. Trả lời CHỈ dựa vào thông tin
-    được cung cấp. Nếu không đủ, nói 'Tôi không có thông tin về điều này'.
-    Dùng citation [1], [2], ... để trích dẫn nguồn. Trả lời tiếng Việt, ngắn gọn."""
-    
-    response = client.chat.completions.create(
-        model=model,
-        temperature=0,  # Deterministic for evaluation
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"{context_block}\nCâu hỏi: {query}"},
-        ]
-    )
-    return response.choices[0].message.content
-```
-
-### Context & Output Format
-
-**Input to LLM:**
-```
-[System]: Answer only from context, cite sources [1][2]...
-
-[Retrieved Context]
-[1] | Source: data/docs/sla_p1_2026.txt | Section: SLA Definitions
-     Response Time: 15 minutes | Resolution Time: 4 hours
-
-[2] | Source: data/docs/sla_p1_2026.txt | Section: Escalation
-     Escalate to: Sr Engineer after timeout
-
-Câu hỏi: SLA xử lý ticket P1 là bao lâu?
-```
-
-**Output:**
-```json
-{
-  "answer": "SLA xử lý ticket P1 là 4 giờ cho việc khắc phục, 15 phút phản hồi đầu [1]",
-  "sources": ["data/docs/sla_p1_2026.txt"],
-  "chunks_used": [{"text": "...", "metadata": {...}, "score": 0.618}],
-  "config": {
-    "retrieval_mode": "dense",
-    "top_k_search": 10,
-    "top_k_select": 3,
-    "model": "gpt-4o-mini"
-  }
-}
-```
-
----
-
-## 4. Sprint 3 & 4: Tuning & Evaluation
-
-### Final Winner: BASELINE DENSE RETRIEVAL
-
-```
-PRODUCTION CONFIGURATION:
-  - Retrieval: Dense embeddings only
-  - Top K Search: 10 candidates
-  - Top K Select: 3 for LLM
-  - Reranking: Disabled
-  - Model: gpt-4o-mini
-  - Performance: 4.20/5
-```
-
-### A/B Test Results
-
-| Metric | Baseline | Hybrid ❌ | Delta | Winner |
-|--------|-----------|---------|-------|--------|
-| **Faithfulness** | 2.60/5 | 2.50/5 | +0.10 | Baseline |
-| **Relevance** | **4.40/5** | 4.00/5 | **+0.40** | Baseline (critical) |
-| **Completeness** | 5.00/5 | 5.00/5 | 0.00 | TIE |
-| **Context Recall** | 4.80/5 | 4.80/5 | 0.00 | TIE |
-| **OVERALL** | **4.20/5** | 4.08/5 | **+0.12** | **BASELINE** |
-
-### Why Baseline Wins
-
-1. **Relevance -0.40 drop is critical:** Hybrid's BM25 matched unrelated keywords
-2. **No gains in Context Recall:** Dense already retrieves correct documents (4.80/5)
-3. **Simplicity:** Dense retrieval is faster, no keyword indexing overhead
-4. **Corpus profile:** 80% of test queries are naturally semantic (policy language)
-
-### Variant B: Rerank (Implemented but Optional)
-
-```python
-def rerank(query: str, candidates: List, top_k: int = 3):
-    """Re-score with cross-encoder (NOT USED - complexity not justified)."""
-    from sentence_transformers import CrossEncoder
-    model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-    pairs = [[query, c["text"]] for c in candidates]
-    scores = model.predict(pairs)  # Adds ~10ms latency
-```
-
-**Decision:** Skip. Baseline relevance 4.40/5 already strong. Reranking would add latency without proven benefit.
-
-### Variant C: Query Expansion (Framework Ready)
-
-```python
-def transform_query(query: str, strategy: str = "expansion") -> List[str]:
-    """Not used - queries already well-formed for this corpus."""
-    # Strategies available: expansion, decomposition, hyde
-    return [query]  # No transformation needed
-```
-
-**Decision:** Skip. Policy queries straightforward; simple RAG sufficient.
-
----
-
-## 5. Evaluation Metrics (Sprint 4) Complete
-
-### 4 Core Metrics (1-5 Scale)
-
-| Metric | Definition | Scoring Logic | Baseline | Hybrid |
-|--------|-----------|---------------|----------|--------|
-| **Faithfulness** | Answer grounded in retrieved chunks | Keyword overlap: answer_keywords ∩ source_keywords | 2.60/5 | 2.50/5 |
-| **Relevance** | Answer directly addresses query | Term overlap: expected_answer_terms in generated_answer | **4.40/5** | 4.00/5 |
-| **Completeness** | All aspects of query covered | Aspect count: matched_aspects / total_aspects | 5.00/5 | 5.00/5 |
-| **Context Recall** | Retrieved all necessary documents | Source matching: expected_sources ⊆ retrieved_sources | 4.80/5 | 4.80/5 |
-| **Overall Average** | Combined score | (F + R + Co + CR) / 4 | **4.20/5** | 4.08/5 |
-
-### Test Dataset: 10 Questions
-
-| # | Question | Category | Baseline | Hybrid | Notes |
-|----|----------|----------|----------|--------|-------|
-| 1 | SLA P1 duration? | SLA | 4/5 | 3/5 | Dense more focused |
-| 2 | Refund deadline? | Refund | 5/5 | 5/5 | Perfect on both |
-| 3 | Level 3 approvers? | Access Control | 4/5 | 4/5 | Same performance |
-| 4 | Digital product refund? | Refund | 5/5 | 5/5 | Perfect on both |
-| 5 | Account lockout? | IT Helpdesk | 5/5 | 5/5 | Perfect on both |
-| 6 | P1 escalation flow? | SLA | 5/5 | 3/5 | Dense more relevant |
-| 7 | Approval Matrix? | Access Control | 2/5 | 2/5 | Both struggle (model hallucination) |
-| 8 | Remote work policy? | HR | 4/5 | 3/5 | Dense more precise |
-| 9 | ERR-403 error? | Edge Case | 5/5 | 5/5 | Both abstain correctly |
-| 10 | VIP refund process? | Edge Case | 5/5 | 5/5 | Both abstain correctly |
-
-### Scoring Implementation (from `quick_eval_hybrid.py`)
-
-```python
-def score_faithfulness(answer: str, chunks_text: str) -> int:
-    """Check keyword overlap between answer and chunks."""
-    if "không" in answer.lower():
-        return 3  # Abstention
-    answer_keywords = [w for w in answer.lower().split() if len(w) > 3]
-    chunks_lower = chunks_text.lower()
-    matched = sum(1 for kw in answer_keywords if kw in chunks_lower)
-    ratio = matched / max(len(answer_keywords), 1)
-    # Scoring: 5 if 80%+ overlap, 4 if 60%+, etc.
-
-def score_relevance(answer: str, expected: str) -> int:
-    """Check term overlap with expected answer."""
-    expected_terms = [t for t in expected.lower().split() if len(t) > 3]
-    matched = sum(1 for term in expected_terms if term in answer.lower())
-    ratio = matched / max(len(expected_terms), 1)
-    # Scoring: 5 if 70%+ overlap, 4 if 50%+, etc.
-
-def score_completeness(answer: str, expected: str) -> int:
-    """Check aspect coverage."""
-    # Count expected aspects vs aspects mentioned in answer
-
-def score_context_recall(sources: List, expected_sources: List) -> int:
-    """Check if all expected sources were retrieved."""
-    # Check source overlap between expected and retrieved
-```
-
-### Known Issues
-
-1. **Faithfulness 2.60/5 (low):** Model adds external knowledge beyond context
-   - Example Q7: Incorrectly specified approval levels not in docs
-   - Improvement: Stricter grounding prompts, few-shot examples
-
-2. **Completeness 5.00/5 (perfect):** Context blocks are comprehensive
-   - Indicates excellent retrieval quality
-   - Chunks contain necessary information
-
-3. **Context Recall 4.80/5 (excellent):** Dense retrieval captures right documents
-   - Only Q9 lower (out-of-domain, intentional abstention)
-
----
-
-## 6. File Structure
-
-```
-lab/
-├── index.py                         ← Sprint 1: Build vector index (29 chunks)
-├── rag_answer.py                    ← Sprint 2 & 3: Retrieval + Generation
-│   ├── retrieve_dense()             ✓ Dense embeddings
-│   ├── retrieve_sparse()            ✓ BM25 keyword search
-│   ├── retrieve_hybrid()            ✓ RRF fusion
-│   ├── rerank()                     ✓ Cross-encoder optional
-│   └── call_llm()                   ✓ OpenAI API
-│
-├── quick_eval_hybrid.py             ← Fast evaluation (tested hybrid)
-├── run_evaluation.py                ← Full evaluation (all configs)
-├── eval.py                          ← Scoring functions
-│
-├── data/
-│   ├── docs/                        ← 5 source documents (29 chunks)
-│   │   ├── access_control_sop.txt   (7 chunks)
-│   │   ├── hr_leave_policy.txt      (5 chunks)
-│   │   ├── it_helpdesk_faq.txt      (11 chunks)
-│   │   ├── policy_refund_v4.txt     (6 chunks)
-│   │   └── sla_p1_2026.txt          (indexed)
-│   └── test_questions.json          ← 10 evaluation questions
-│
-├── chroma_db/                       ← Vector store (ChromaDB)
-│   └── chroma.sqlite3               (persistent)
-│
-├── results/                         ← Evaluation outputs
-│   ├── scorecard_baseline_dense.md  ✓ (4.20/5)
-│   ├── scorecard_variant_hybrid.md  ✓ (4.08/5)
-│   ├── comparison.md                ✓ A/B analysis
-│   ├── raw_baseline_dense.json      ✓
-│   └── raw_variant_hybrid.json      ✓
-│
-├── docs/
-│   ├── architecture.md              ← This file
-│   ├── tuning-log.md               ← Sprint decisions
-│   ├── tuning-log-FINAL.md          ← Complete analysis + winner
-│   ├── QUICK_REFERENCE.md           ← User guide
-│   └── EVALUATION_SUMMARY.md        ← Final report
-│
-└── .env                             ← API keys (OPENAI_API_KEY)
-```
-
----
-
-## 7. Configuration Parameters Actual Values
-
-### Index Phase (Sprint 1)
-```python
-CHUNK_SIZE = 400              # tokens (~1600 chars)
-CHUNK_OVERLAP = 50            # tokens (ensures continuity)
-EMBEDDING_PROVIDER = "openai"
-EMBEDDING_MODEL = "text-embedding-3-small"
-CHROMA_DB_DIR = "chroma_db/"
-DOCUMENTS_INDEXED = 29        # From 5 source documents
-```
-
-### Retrieval Phase (Sprint 2 & 3)
-```python
-TOP_K_SEARCH = 10            # Initial candidates from dense/sparse
-TOP_K_SELECT = 3             # Final ranking for LLM
-RETRIEVAL_MODE = "dense"     # PRODUCTION CHOICE
-
-# Hybrid variant (tested, not chosen):
-DENSE_WEIGHT = 0.6           # 60% semantic weight
-SPARSE_WEIGHT = 0.4          # 40% keyword weight
-RRF_CONSTANT = 60            # Normalization in RRF formula
-
-USE_RERANK = False           # Cross-encoder optional
-RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-```
-
-### Generation Phase (Sprint 2)
-```python
-LLM_MODEL = "gpt-4o-mini"    # OpenAI model
-TEMPERATURE = 0              # Deterministic (for evaluation)
-MAX_TOKENS = 512
-SYSTEM_LANGUAGE = "Vietnamese"
-```
-
-### Evaluation Phase (Sprint 4)
-```python
-TEST_QUESTIONS = 10
-METRICS = ["Faithfulness", "Relevance", "Completeness", "Context Recall"]
-BASELINE_SCORE = 4.20        # Dense retrieval
-VARIANT_SCORE = 4.08         # Hybrid retrieval
-WINNER = "Baseline"
-```
-
----
-
-## 8. Lessons Learned & Future Work
-
-### What Worked Well
-
-| Component | Status | Result |
-|-----------|--------|--------|
-| **Dense Retrieval** | Optimal | 4.20/5 overall, 4.40/5 relevance |
-| **ChromaDB Vector Store** | Reliable | 29 chunks indexed, persistent |
-| **Grounded Generation** | Effective | Citations work, context grounding |
-| **Context Recall** | 4.80/5 | Retrieves necessary documents |
-| **Completeness** | 5.00/5 | Answers cover all aspects |
-
-### What Didn't Work
-
-| Approach | Issue | Why Failed | Alternative |
-|----------|-------|-----------|-------------|
-| **Hybrid (Dense+BM25)** | -0.40 relevance drop | Keywords matched unrelated sections | Stick with dense |
-| **Reranking** | Not tested | Dense already strong (4.40/5) | Optional future |
-| **Query Expansion** | Not tested | Queries already well-formed | Optional future |
-
-### Issues to Address
-
-#### 1. Faithfulness (2.60/5) - Model Hallucination
-- **Problem:** Model adds knowledge beyond retrieved context
-- **Example:** Q7 - Specified approval levels not in documents
-- **Impact:** ~10% of answers contain external knowledge
-- **Solutions:**
-  - Stricter prompt: "Do NOT use knowledge beyond provided context"
-  - Few-shot examples with grounded answers
-  - LLM-as-judge to detect hallucinations
-  - Consider smaller model (e.g., gpt-3.5-turbo) for tighter grounding
-
-#### 2. Question 7 (Approval Matrix) Edge Case
-- **Issue:** "Approval Matrix" is ambiguous (access levels vs refund approval)
-- **Current:** Model returns generic answer not specific enough
-- **Future:** Add clarifying questions or query expansion
-
-#### 3. Out-of-Domain Handling (Q9, Q10)
-- **Current:** Model abstains correctly (5/5 score)  
-- **Future:** Consider explicit OOD pre-filter to save API calls
-
-### Performance Targets vs Actual
-
-| Target | Actual | Status |
-|--------|--------|--------|
-| Accuracy: 90% of questions | 82% (8/10 scored ≥4) | Close |
-| Latency: <2 sec/query | ~1-1.5s | Good |
-| Cost: $0.01/query | $0.0003/query | Excellent |
-| Faithfulness: 95% grounded | 52% (2.60/5) | Needs work |
-
-### Production Deployment Checklist
-
-- [x] Baseline configuration selected and documented
-- [x] 10-question evaluation completed (4.20/5)
-- [x] A/B comparison with variant (Hybrid) done
-- [x] Decision documented with rationale
-- [x] Code clean and commented
-- [x] Results reproducible
-- [x] Architecture documented
-- [ ] Grading evaluation (pending 2026-04-13 17:00)
-
-### Recommended Next Steps
-
-1. **Short term (for grading):**
-   - Run evaluation on grading dataset (when available)
-   - Generate group_report.md with findings
-   - Create individual reports if required
-
-2. **Medium term (production):**
-   - Improve faithfulness with better prompting (target: 3.5+)
-   - Consider reranking if faithfulness improvement plateaus
-   - Add explicit OOD detection pre-retrieval
-
-3. **Long term (optimization):**
-   - Collect user feedback to improve scoring metrics
-   - A/B test different prompt templates
-   - Consider fine-tuning on domain-specific data
-   - Explore local embeddings model for cost reduction
-
----
-
-## 9. Performance Targets from SLA vs Actual
-
-| Target | Baseline Result | Status |
-|--------|---|--------|
-| Accuracy: 90% of questions correct | 82% (8/10 scored ≥4) | Close to target |
-| Latency: <2 seconds per query | ~1-1.5s | Exceeds SLA |
-| Cost per query: <$0.01 | $0.0003 | Far exceeds SLA |
-| Faithfulness: 95% grounded in sources | 52% (2.60/5) | Needs improvement |
-| Context Recall: Retrieve all necessary docs | 96% (4.80/5) | Excellent |
-
-### Summary
-
-- **Production ready:** YES - Dense retrieval at 4.20/5
-- **Variant evaluated:** YES - Hybrid at 4.08/5 (not chosen)
-- **Root cause analysis:** YES - See Lessons Learned section
-- **Winner documented:** YES - Baseline with +0.12 advantage
+## 9. Deployment Checklist
+
+- [x] Index built: 29 chunks, all documents processed
+- [x] Metadata complete: 100% effective_date coverage
+- [x] Baseline evaluated: 4.53/5 average
+- [x] Variant tested & rejected: -5% performance
+- [x] Grading scores logged: `logs/grading_run.json`
+- [x] Configuration decided: Dense baseline selected
+- [ ] Manual completeness review for q04, q07, q10 (optional)
+- [ ] Production deployment

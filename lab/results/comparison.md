@@ -100,9 +100,9 @@ Tested two configurations:
 ### Why NOT Use Hybrid for This Project
 
 This corpus is **unsuitable for hybrid retrieval** because:
-- ✅ Terminology is consistent (no alias/old names to handle)
-- ✅ Most queries are already semantic (not keyword-heavy)
-- ✅ Small corpus (29 chunks) → dense already powerful enough
+- Terminology is consistent (no alias/old names to handle)
+- Most queries are already semantic (not keyword-heavy)
+- Small corpus (29 chunks) → dense already powerful enough
 - ❌ Hybrid adds noise without improving performance
 
 ### When Hybrid WOULD Help
