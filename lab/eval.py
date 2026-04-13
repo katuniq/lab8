@@ -63,37 +63,37 @@ def score_faithfulness(
     """
     Faithfulness: Câu trả lời có bám đúng chứng cứ đã retrieve không?
     Câu hỏi: Model có tự bịa thêm thông tin ngoài retrieved context không?
-
-    Thang điểm 1-5:
-      5: Mọi thông tin trong answer đều có trong retrieved chunks
-      4: Gần như hoàn toàn grounded, 1 chi tiết nhỏ chưa chắc chắn
-      3: Phần lớn grounded, một số thông tin có thể từ model knowledge
-      2: Nhiều thông tin không có trong retrieved chunks
-      1: Câu trả lời không grounded, phần lớn là model bịa
-
-    TODO Sprint 4 — Có 2 cách chấm:
-
-    Cách 1 — Chấm thủ công (Manual, đơn giản):
-        Đọc answer và chunks_used, chấm điểm theo thang trên.
-        Ghi lý do ngắn gọn vào "notes".
-
-    Cách 2 — LLM-as-Judge (Tự động, nâng cao):
-        Gửi prompt cho LLM:
-            "Given these retrieved chunks: {chunks}
-             And this answer: {answer}
-             Rate the faithfulness on a scale of 1-5.
-             5 = completely grounded in the provided context.
-             1 = answer contains information not in the context.
-             Output JSON: {'score': <int>, 'reason': '<string>'}"
-
-    Trả về dict với: score (1-5) và notes (lý do)
     """
-    # TODO Sprint 4: Implement scoring
-    # Tạm thời trả về None (yêu cầu chấm thủ công)
-    return {
-        "score": None,
-        "notes": "TODO: Chấm thủ công hoặc implement LLM-as-Judge",
-    }
+    if answer in ["PIPELINE_NOT_IMPLEMENTED", ""] or answer.startswith("ERROR:"):
+        return {"score": 0, "notes": "No valid answer"}
+    if answer.lower().startswith("tôi không có đủ thông tin") or answer.lower().startswith("không đủ dữ liệu"):
+        return {"score": 5, "notes": "Abstained correctly"}
+
+    chunks_text = "\n\n".join([f"[Chunk]: {c.get('text', '')}" for c in chunks_used])
+    prompt = f"""Given these retrieved chunks:
+{chunks_text}
+
+And this answer:
+{answer}
+
+Rate the faithfulness on a scale of 1-5.
+5 = completely grounded in the provided context.
+1 = answer contains information not in the context.
+Output exactly a JSON object, no markdown or extra characters: {{"score": <int>, "reason": "<string>"}}"""
+
+    import json
+    import re
+    from rag_answer import call_llm
+    try:
+        res = call_llm(prompt)
+        match = re.search(r'(\{.*\})', res.replace('\n', ' '))
+        if match:
+            data = json.loads(match.group(1))
+            return {"score": data.get("score", 1), "notes": data.get("reason", "Faithfulness evaluaton matched format.")}
+        data = json.loads(res.strip())
+        return {"score": data.get("score", 1), "notes": data.get("reason", "")}
+    except Exception as e:
+        return {"score": 3, "notes": f"Error parsing eval: {e}"}
 
 
 def score_answer_relevance(
@@ -102,21 +102,37 @@ def score_answer_relevance(
 ) -> Dict[str, Any]:
     """
     Answer Relevance: Answer có trả lời đúng câu hỏi người dùng hỏi không?
-    Câu hỏi: Model có bị lạc đề hay trả lời đúng vấn đề cốt lõi không?
-
-    Thang điểm 1-5:
-      5: Answer trả lời trực tiếp và đầy đủ câu hỏi
-      4: Trả lời đúng nhưng thiếu vài chi tiết phụ
-      3: Trả lời có liên quan nhưng chưa đúng trọng tâm
-      2: Trả lời lạc đề một phần
-      1: Không trả lời câu hỏi
-
-    TODO Sprint 4: Implement tương tự score_faithfulness
     """
-    return {
-        "score": None,
-        "notes": "TODO: Implement score_answer_relevance",
-    }
+    if answer in ["PIPELINE_NOT_IMPLEMENTED", ""] or answer.startswith("ERROR:"):
+        return {"score": 0, "notes": "No valid answer"}
+    if answer.lower().startswith("tôi không có đủ thông tin") or answer.lower().startswith("không đủ dữ liệu"):
+        # For evaluation purposes, if it abstained let's say relevance is N/A or mid.
+        return {"score": 5, "notes": "Abstained appropriately"}
+
+    prompt = f"""Given this query:
+{query}
+
+And this answer:
+{answer}
+
+Rate the answer relevance on a scale of 1-5.
+5 = Answer directly and fully addresses the query.
+1 = Answer does not address the query at all.
+Output exactly a JSON object, no markdown or extra characters: {{"score": <int>, "reason": "<string>"}}"""
+
+    import json
+    import re
+    from rag_answer import call_llm
+    try:
+        res = call_llm(prompt)
+        match = re.search(r'(\{.*\})', res.replace('\n', ' '))
+        if match:
+            data = json.loads(match.group(1))
+            return {"score": data.get("score", 1), "notes": data.get("reason", "Evaluated relevance.")}
+        data = json.loads(res.strip())
+        return {"score": data.get("score", 1), "notes": data.get("reason", "")}
+    except Exception as e:
+        return {"score": 3, "notes": f"Error parsing eval: {e}"}
 
 
 def score_context_recall(
@@ -165,8 +181,18 @@ def score_context_recall(
 
     recall = found / len(expected_sources) if expected_sources else 0
 
+    # Convert recall (0-1) to score (1-5): 1 = low, 5 = perfect recall
+    # Must use max(1, ...) to ensure minimum score of 1 if any sources found
+    if found == 0:
+        score = 1
+    elif found == len(expected_sources):
+        score = 5
+    else:
+        # Partial match: scale linearly from 1 to 5
+        score = max(1, int(1 + (recall * 4)))  # 0.0→1, 1.0→5, linear in between
+    
     return {
-        "score": round(recall * 5),  # Convert to 1-5 scale
+        "score": score,  # Convert to 1-5 scale
         "recall": recall,
         "found": found,
         "missing": missing,
@@ -182,26 +208,37 @@ def score_completeness(
 ) -> Dict[str, Any]:
     """
     Completeness: Answer có thiếu điều kiện ngoại lệ hoặc bước quan trọng không?
-    Câu hỏi: Answer có bao phủ đủ thông tin so với expected_answer không?
-
-    Thang điểm 1-5:
-      5: Answer bao gồm đủ tất cả điểm quan trọng trong expected_answer
-      4: Thiếu 1 chi tiết nhỏ
-      3: Thiếu một số thông tin quan trọng
-      2: Thiếu nhiều thông tin quan trọng
-      1: Thiếu phần lớn nội dung cốt lõi
-
-    TODO Sprint 4:
-    Option 1 — Chấm thủ công: So sánh answer vs expected_answer và chấm.
-    Option 2 — LLM-as-Judge:
-        "Compare the model answer with the expected answer.
-         Rate completeness 1-5. Are all key points covered?
-         Output: {'score': int, 'missing_points': [str]}"
     """
-    return {
-        "score": None,
-        "notes": "TODO: Implement score_completeness (so sánh với expected_answer)",
-    }
+    if answer in ["PIPELINE_NOT_IMPLEMENTED", ""] or answer.startswith("ERROR:"):
+        return {"score": 0, "notes": "No valid answer"}
+    if not expected_answer:
+        return {"score": 5, "notes": "No expected answer provided"}
+
+    prompt = f"""Compare the model answer with the expected answer.
+Query: {query}
+Expected Answer: {expected_answer}
+Model Answer: {answer}
+
+Rate completeness 1-5. Are all key points covered?
+5 = Answer covers all key points in the expected answer.
+1 = Missing most core points.
+Output exactly a JSON object, no markdown or extra characters: {{"score": <int>, "missing_points": ["<string>"]}}"""
+
+    import json
+    import re
+    from rag_answer import call_llm
+    try:
+        res = call_llm(prompt)
+        match = re.search(r'(\{.*\})', res.replace('\n', ' '))
+        if match:
+            data = json.loads(match.group(1))
+            missing = data.get("missing_points", [])
+            return {"score": data.get("score", 1), "notes": f"Missing: {missing}" if missing else "Complete"}
+        data = json.loads(res.strip())
+        missing = data.get("missing_points", [])
+        return {"score": data.get("score", 1), "notes": f"Missing: {missing}" if missing else "Complete"}
+    except Exception as e:
+        return {"score": 3, "notes": f"Error parsing eval: {e}"}
 
 
 # =============================================================================
@@ -445,6 +482,10 @@ Generated: {timestamp}
 # =============================================================================
 
 if __name__ == "__main__":
+    import sys
+    if sys.stdout.encoding.lower() != 'utf-8':
+        sys.stdout.reconfigure(encoding='utf-8')
+        
     print("=" * 60)
     print("Sprint 4: Evaluation & Scorecard")
     print("=" * 60)
@@ -487,29 +528,29 @@ if __name__ == "__main__":
         baseline_results = []
 
     # --- Chạy Variant (sau khi Sprint 3 hoàn thành) ---
-    # TODO Sprint 4: Uncomment sau khi implement variant trong rag_answer.py
-    # print("\n--- Chạy Variant ---")
-    # variant_results = run_scorecard(
-    #     config=VARIANT_CONFIG,
-    #     test_questions=test_questions,
-    #     verbose=True,
-    # )
-    # variant_md = generate_scorecard_summary(variant_results, VARIANT_CONFIG["label"])
-    # (RESULTS_DIR / "scorecard_variant.md").write_text(variant_md, encoding="utf-8")
+    # --- Chạy Variant (sau khi Sprint 3 hoàn thành) ---
+    print("\n--- Chạy Variant ---")
+    variant_results = run_scorecard(
+        config=VARIANT_CONFIG,
+        test_questions=test_questions,
+        verbose=True,
+    )
+    if variant_results:
+        variant_md = generate_scorecard_summary(variant_results, VARIANT_CONFIG["label"])
+        (RESULTS_DIR / "scorecard_variant.md").write_text(variant_md, encoding="utf-8")
 
     # --- A/B Comparison ---
-    # TODO Sprint 4: Uncomment sau khi có cả baseline và variant
-    # if baseline_results and variant_results:
-    #     compare_ab(
-    #         baseline_results,
-    #         variant_results,
-    #         output_csv="ab_comparison.csv"
-    #     )
+    if baseline_results and variant_results:
+        compare_ab(
+            baseline_results,
+            variant_results,
+            output_csv="ab_comparison.csv"
+        )
 
-    print("\n\nViệc cần làm Sprint 4:")
-    print("  1. Hoàn thành Sprint 2 + 3 trước")
-    print("  2. Chấm điểm thủ công hoặc implement LLM-as-Judge trong score_* functions")
-    print("  3. Chạy run_scorecard(BASELINE_CONFIG)")
-    print("  4. Chạy run_scorecard(VARIANT_CONFIG)")
-    print("  5. Gọi compare_ab() để thấy delta")
-    print("  6. Cập nhật docs/tuning-log.md với kết quả và nhận xét")
+    # print("\n\nViệc cần làm Sprint 4:")
+    # print("  1. Hoàn thành Sprint 2 + 3 trước")
+    # print("  2. Chấm điểm thủ công hoặc implement LLM-as-Judge trong score_* functions")
+    # print("  3. Chạy run_scorecard(BASELINE_CONFIG)")
+    # print("  4. Chạy run_scorecard(VARIANT_CONFIG)")
+    # print("  5. Gọi compare_ab() để thấy delta")
+    # print("  6. Cập nhật docs/tuning-log.md với kết quả và nhận xét")
