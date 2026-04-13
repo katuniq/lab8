@@ -1,198 +1,399 @@
-[
-  {
-    "id": "gq01",
-    "question": "SLA xử lý ticket P1 đã thay đổi như thế nào so với phiên bản trước?",
-    "generated_answer": "SLA xử lý ticket P1 đã thay đổi từ 6 giờ xuống 4 giờ trong phiên bản mới nhất [1].",
-    "expected_answer": "Phiên bản hiện tại (v2026.1, có hiệu lực từ 2026-01-15) đã cập nhật SLA P1 resolution từ 6 giờ xuống còn 4 giờ. Phiên bản trước (v2025.3) không thay đổi SLA này.",
-    "sources_retrieved": [
-      "support/sla-p1-2026.pdf"
-    ],
-    "expected_sources": [
-      "support/sla-p1-2026.pdf"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "hard",
-    "points_max": 10,
+{
+  "timestamp": "2026-04-13 18:40:35",
+  "baseline_config": {
     "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:22.113414",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
+    "top_k_search": 10,
+    "top_k_select": 3,
+    "use_rerank": false,
+    "label": "baseline_dense"
   },
-  {
-    "id": "gq02",
-    "question": "Khi làm việc remote, tôi phải dùng VPN và được kết nối trên tối đa bao nhiêu thiết bị?",
-    "generated_answer": "Bạn có thể kết nối VPN trên tối đa 2 thiết bị cùng lúc [1].",
-    "expected_answer": "Khi làm việc remote và truy cập hệ thống nội bộ, VPN là bắt buộc (theo HR Leave Policy). Phần mềm VPN là Cisco AnyConnect và mỗi tài khoản được kết nối VPN trên tối đa 2 thiết bị cùng lúc (theo IT Helpdesk FAQ).",
-    "sources_retrieved": [
-      "support/helpdesk-faq.md",
-      "it/access-control-sop.md",
-      "hr/leave-policy-2026.pdf"
-    ],
-    "expected_sources": [
-      "hr/leave-policy-2026.pdf",
-      "support/helpdesk-faq.md"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "hard",
-    "points_max": 10,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:24.988235",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
+  "variant_config": {
+    "retrieval_mode": "hybrid",
+    "top_k_search": 10,
+    "top_k_select": 3,
+    "use_rerank": true,
+    "label": "variant_hybrid_rerank"
   },
-  {
-    "id": "gq03",
-    "question": "Đơn hàng mua trong chương trình Flash Sale và đã kích hoạt sản phẩm có được hoàn tiền không?",
-    "generated_answer": "Đơn hàng mua trong chương trình Flash Sale và đã kích hoạt sản phẩm sẽ không được hoàn tiền, vì sản phẩm đã áp dụng mã giảm giá đặc biệt và đã được kích hoạt [1].",
-    "expected_answer": "Không được hoàn tiền. Đơn hàng rơi vào hai ngoại lệ cùng lúc: (1) đơn hàng áp dụng mã giảm giá chương trình Flash Sale và (2) sản phẩm đã được kích hoạt — cả hai đều thuộc danh sách ngoại lệ không được hoàn tiền theo Điều 3 của chính sách.",
-    "sources_retrieved": [
-      "policy/refund-v4.pdf"
-    ],
-    "expected_sources": [
-      "policy/refund-v4.pdf"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "hard",
-    "points_max": 10,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:27.216708",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
-  },
-  {
-    "id": "gq04",
-    "question": "Nếu chọn nhận store credit thay vì hoàn tiền, tôi được bao nhiêu phần trăm so với số tiền gốc?",
-    "generated_answer": "Nếu chọn nhận store credit, bạn sẽ nhận được 110% so với số tiền gốc [1].",
-    "expected_answer": "Khách hàng có thể chọn nhận store credit (credit nội bộ) thay thế với giá trị 110% so với số tiền hoàn gốc. Đây là tùy chọn, không phải bắt buộc.",
-    "sources_retrieved": [
-      "policy/refund-v4.pdf"
-    ],
-    "expected_sources": [
-      "policy/refund-v4.pdf"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "medium",
-    "points_max": 8,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:29.719952",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
-  },
-  {
-    "id": "gq05",
-    "question": "Contractor từ bên ngoài công ty có thể được cấp quyền Admin Access không? Nếu có, cần bao nhiêu ngày và có yêu cầu đặc biệt gì?",
-    "generated_answer": "Có, contractor từ bên ngoài công ty có thể được cấp quyền Admin Access. Thời gian xử lý là 5 ngày làm việc và yêu cầu thêm là phải hoàn thành training bắt buộc về security policy [2].",
-    "expected_answer": "Có. Theo Access Control SOP, quy trình áp dụng cho cả nhân viên, contractor và third-party vendor. Admin Access (Level 4) cần phê duyệt từ IT Manager và CISO, thời gian xử lý 5 ngày làm việc, và có yêu cầu thêm: training bắt buộc về security policy.",
-    "sources_retrieved": [
-      "it/access-control-sop.md"
-    ],
-    "expected_sources": [
-      "it/access-control-sop.md"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "hard",
-    "points_max": 10,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:34.249393",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
-  },
-  {
-    "id": "gq06",
-    "question": "Lúc 2 giờ sáng xảy ra sự cố P1, on-call engineer cần cấp quyền tạm thời cho một engineer xử lý incident. Quy trình cụ thể như thế nào và quyền này tồn tại bao lâu?",
-    "generated_answer": "Quy trình cấp quyền tạm thời cho engineer trong sự cố P1 như sau: On-call IT Admin có thể cấp quyền tạm thời (tối đa 24 giờ) sau khi được Tech Lead phê duyệt bằng lời. Sau 24 giờ, phải có ticket chính thức hoặc quyền sẽ bị thu hồi tự động. Tất cả quyền tạm thời phải được ghi log vào hệ thống Security Audit [1].",
-    "expected_answer": "On-call IT Admin có thể cấp quyền tạm thời (tối đa 24 giờ) sau khi được Tech Lead phê duyệt bằng lời. Sau 24 giờ, phải có ticket chính thức hoặc quyền bị thu hồi tự động. Mọi quyền tạm thời phải được ghi log vào hệ thống Security Audit. Liên hệ on-call qua hotline ext. 9999 (24/7) theo SLA P1.",
-    "sources_retrieved": [
-      "support/sla-p1-2026.pdf",
-      "it/access-control-sop.md"
-    ],
-    "expected_sources": [
-      "it/access-control-sop.md",
-      "support/sla-p1-2026.pdf"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "hard",
-    "points_max": 12,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:37.263629",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
-  },
-  {
-    "id": "gq07",
-    "question": "Công ty sẽ phạt bao nhiêu nếu team IT vi phạm cam kết SLA P1?",
-    "generated_answer": "Tôi không biết.",
-    "expected_answer": "Tài liệu hiện có không quy định mức phạt hay hình thức xử lý khi vi phạm SLA P1. Tài liệu sla-p1-2026.pdf chỉ mô tả quy trình xử lý và SLA target, không có điều khoản về penalty.",
-    "sources_retrieved": [
-      "support/sla-p1-2026.pdf",
-      "support/helpdesk-faq.md"
-    ],
-    "expected_sources": [],
-    "chunks_retrieved": 3,
-    "source_recall": 1.0,
-    "difficulty": "medium",
-    "points_max": 10,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:38.879543",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
-  },
-  {
-    "id": "gq08",
-    "question": "Nhân viên phải báo trước bao nhiêu ngày để xin nghỉ phép năm? Con số này có giống với số ngày cần giấy tờ khi nghỉ ốm không?",
-    "generated_answer": "Nhân viên phải báo trước ít nhất 3 ngày làm việc để xin nghỉ phép năm [2]. Số ngày cần giấy tờ khi nghỉ ốm là nếu nghỉ trên 3 ngày liên tiếp [1], do đó không giống nhau.",
-    "expected_answer": "Nghỉ phép năm cần báo trước ít nhất 3 ngày làm việc qua HR Portal. Nghỉ ốm cũng liên quan đến mốc 3 ngày: nếu nghỉ TRÊN 3 ngày liên tiếp thì cần giấy tờ y tế từ bệnh viện. Hai con số '3 ngày' này áp dụng cho hai tình huống khác nhau.",
-    "sources_retrieved": [
-      "hr/leave-policy-2026.pdf",
-      "it/access-control-sop.md"
-    ],
-    "expected_sources": [
-      "hr/leave-policy-2026.pdf"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "hard",
-    "points_max": 10,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:41.171353",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
-  },
-  {
-    "id": "gq09",
-    "question": "Mật khẩu tài khoản công ty cần đổi định kỳ không? Nếu có, hệ thống sẽ nhắc nhở trước bao nhiêu ngày và đổi qua đâu?",
-    "generated_answer": "Có, mật khẩu cần thay đổi định kỳ mỗi 90 ngày. Hệ thống sẽ nhắc nhở 7 ngày trước khi hết hạn [1].",
-    "expected_answer": "Có. Mật khẩu phải được thay đổi mỗi 90 ngày. Hệ thống sẽ nhắc nhở 7 ngày trước khi hết hạn. Để đổi mật khẩu, truy cập https://sso.company.internal/reset hoặc liên hệ Helpdesk qua ext. 9000.",
-    "sources_retrieved": [
-      "support/helpdesk-faq.md",
-      "it/access-control-sop.md"
-    ],
-    "expected_sources": [
-      "support/helpdesk-faq.md"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "medium",
-    "points_max": 8,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:43.071473",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
-  },
-  {
-    "id": "gq10",
-    "question": "Chính sách hoàn tiền hiện tại áp dụng cho đơn hàng đặt trước ngày 01/02/2026 không?",
-    "generated_answer": "Chính sách hoàn tiền hiện tại không áp dụng cho đơn hàng đặt trước ngày 01/02/2026. Các đơn hàng đặt trước ngày này sẽ áp dụng theo chính sách hoàn tiền phiên bản 3 [1].",
-    "expected_answer": "Không. Chính sách hoàn tiền phiên bản 4 có hiệu lực từ ngày 01/02/2026 và chỉ áp dụng cho các đơn hàng được đặt kể từ ngày này. Các đơn hàng đặt trước ngày này sẽ áp dụng theo chính sách hoàn tiền phiên bản 3.",
-    "sources_retrieved": [
-      "policy/refund-v4.pdf"
-    ],
-    "expected_sources": [
-      "policy/refund-v4.pdf"
-    ],
-    "chunks_retrieved": 3,
-    "source_recall": 0.0,
-    "difficulty": "hard",
-    "points_max": 10,
-    "retrieval_mode": "dense",
-    "timestamp": "2026-04-13T17:57:44.940913",
-    "notes": "Manual evaluation required for faithfulness, relevance, completeness scoring"
+  "results": [
+    {
+      "id": "gq01",
+      "category": "SLA",
+      "question": "SLA xử lý ticket P1 đã thay đổi như thế nào so với phiên bản trước?",
+      "expected_answer": "Phiên bản hiện tại (v2026.1, có hiệu lực từ 2026-01-15) đã cập nhật SLA P1 resolution từ 6 giờ xuống còn 4 giờ. Phiên bản trước (v2025.3) không thay đổi SLA này.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/sla-p1-2026.pdf']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/sla-p1-2026.pdf']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq02",
+      "category": "Cross-Document",
+      "question": "Khi làm việc remote, tôi phải dùng VPN và được kết nối trên tối đa bao nhiêu thiết bị?",
+      "expected_answer": "Khi làm việc remote và truy cập hệ thống nội bộ, VPN là bắt buộc (theo HR Leave Policy). Phần mềm VPN là Cisco AnyConnect và mỗi tài khoản được kết nối VPN trên tối đa 2 thiết bị cùng lúc (theo IT Helpdesk FAQ).",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['hr/leave-policy-2026.pdf', 'support/helpdesk-faq.md']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['hr/leave-policy-2026.pdf', 'support/helpdesk-faq.md']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq03",
+      "category": "Refund",
+      "question": "Đơn hàng mua trong chương trình Flash Sale và đã kích hoạt sản phẩm có được hoàn tiền không?",
+      "expected_answer": "Không được hoàn tiền. Đơn hàng rơi vào hai ngoại lệ cùng lúc: (1) đơn hàng áp dụng mã giảm giá chương trình Flash Sale và (2) sản phẩm đã được kích hoạt — cả hai đều thuộc danh sách ngoại lệ không được hoàn tiền theo Điều 3 của chính sách.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq04",
+      "category": "Refund",
+      "question": "Nếu chọn nhận store credit thay vì hoàn tiền, tôi được bao nhiêu phần trăm so với số tiền gốc?",
+      "expected_answer": "Khách hàng có thể chọn nhận store credit (credit nội bộ) thay thế với giá trị 110% so với số tiền hoàn gốc. Đây là tùy chọn, không phải bắt buộc.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq05",
+      "category": "Access Control",
+      "question": "Contractor từ bên ngoài công ty có thể được cấp quyền Admin Access không? Nếu có, cần bao nhiêu ngày và có yêu cầu đặc biệt gì?",
+      "expected_answer": "Có. Theo Access Control SOP, quy trình áp dụng cho cả nhân viên, contractor và third-party vendor. Admin Access (Level 4) cần phê duyệt từ IT Manager và CISO, thời gian xử lý 5 ngày làm việc, và có yêu cầu thêm: training bắt buộc về security policy.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['it/access-control-sop.md']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['it/access-control-sop.md']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq06",
+      "category": "Cross-Document",
+      "question": "Lúc 2 giờ sáng xảy ra sự cố P1, on-call engineer cần cấp quyền tạm thời cho một engineer xử lý incident. Quy trình cụ thể như thế nào và quyền này tồn tại bao lâu?",
+      "expected_answer": "On-call IT Admin có thể cấp quyền tạm thời (tối đa 24 giờ) sau khi được Tech Lead phê duyệt bằng lời. Sau 24 giờ, phải có ticket chính thức hoặc quyền bị thu hồi tự động. Mọi quyền tạm thời phải được ghi log vào hệ thống Security Audit. Liên hệ on-call qua hotline ext. 9999 (24/7) theo SLA P1.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['it/access-control-sop.md', 'support/sla-p1-2026.pdf']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['it/access-control-sop.md', 'support/sla-p1-2026.pdf']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq07",
+      "category": "Insufficient Context",
+      "question": "Công ty sẽ phạt bao nhiêu nếu team IT vi phạm cam kết SLA P1?",
+      "expected_answer": "Tài liệu hiện có không quy định mức phạt hay hình thức xử lý khi vi phạm SLA P1. Tài liệu sla-p1-2026.pdf chỉ mô tả quy trình xử lý và SLA target, không có điều khoản về penalty.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": null,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "No expected sources",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": null,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "No expected sources",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq08",
+      "category": "HR Policy",
+      "question": "Nhân viên phải báo trước bao nhiêu ngày để xin nghỉ phép năm? Con số này có giống với số ngày cần giấy tờ khi nghỉ ốm không?",
+      "expected_answer": "Nghỉ phép năm cần báo trước ít nhất 3 ngày làm việc qua HR Portal. Nghỉ ốm cũng liên quan đến mốc 3 ngày: nếu nghỉ TRÊN 3 ngày liên tiếp thì cần giấy tờ y tế từ bệnh viện. Hai con số '3 ngày' này áp dụng cho hai tình huống khác nhau.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['hr/leave-policy-2026.pdf']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['hr/leave-policy-2026.pdf']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq09",
+      "category": "IT Helpdesk",
+      "question": "Mật khẩu tài khoản công ty cần đổi định kỳ không? Nếu có, hệ thống sẽ nhắc nhở trước bao nhiêu ngày và đổi qua đâu?",
+      "expected_answer": "Có. Mật khẩu phải được thay đổi mỗi 90 ngày. Hệ thống sẽ nhắc nhở 7 ngày trước khi hết hạn. Để đổi mật khẩu, truy cập https://sso.company.internal/reset hoặc liên hệ Helpdesk qua ext. 9000.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/helpdesk-faq.md']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/helpdesk-faq.md']",
+          "completeness": "No valid answer"
+        }
+      }
+    },
+    {
+      "id": "gq10",
+      "category": "Refund",
+      "question": "Chính sách hoàn tiền hiện tại áp dụng cho đơn hàng đặt trước ngày 01/02/2026 không?",
+      "expected_answer": "Không. Chính sách hoàn tiền phiên bản 4 có hiệu lực từ ngày 01/02/2026 và chỉ áp dụng cho các đơn hàng được đặt kể từ ngày này. Các đơn hàng đặt trước ngày này sẽ áp dụng theo chính sách hoàn tiền phiên bản 3.",
+      "baseline": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
+          "completeness": "No valid answer"
+        }
+      },
+      "variant": {
+        "answer": "ERROR: No module named 'chromadb'",
+        "scores": {
+          "faithfulness": 0,
+          "relevance": 0,
+          "context_recall": 1,
+          "completeness": 0
+        },
+        "notes": {
+          "faithfulness": "No valid answer",
+          "relevance": "No valid answer",
+          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
+          "completeness": "No valid answer"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "faithfulness": 0.0,
+      "relevance": 0.0,
+      "context_recall": 1.0,
+      "completeness": 0.0
+    },
+    "variant": {
+      "faithfulness": 0.0,
+      "relevance": 0.0,
+      "context_recall": 1.0,
+      "completeness": 0.0
+    },
+    "delta": {
+      "faithfulness": null,
+      "relevance": null,
+      "context_recall": 0.0,
+      "completeness": null
+    }
   }
-]
+}

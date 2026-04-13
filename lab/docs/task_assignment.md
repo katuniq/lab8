@@ -2,11 +2,11 @@
 
 **Nhóm:** 22  
 **Deadline:** 2026-04-13 18:00  
-**Status:** ✅ Complete
+**Status:** Complete
 
 ---
 
-## 📋 Danh Sách Thành Viên & Nhiệm Vụ
+## Danh Sách Thành Viên & Nhiệm Vụ
 
 | STT | Họ Tên | mSSV | Vai Trò | Task Chính |
 |-----|--------|------|--------|-----------|
@@ -18,13 +18,13 @@
 
 ---
 
-## 📝 Chi Tiết Task
+## Chi Tiết Task
 
-### 👤 Người 1: Trần Quốc Khánh (2A202600306) - Sprint 1 Lead
+### Người 1: Trần Quốc Khánh (2A202600306) - Sprint 1 Lead
 **Vai trò:** Index Builder & Technical Lead
 
 **Task Chính:**
-- ✅ Sprint 1 (60 phút): Implement `index.py`
+- Sprint 1 (60 phút): Implement `index.py`
   - Đọc 5 documents từ `data/docs/`
   - Tách chunk (400 tokens, 50 tokens overlap)
   - Extract metadata (source, section, department, effective_date, access)
@@ -34,11 +34,11 @@
 
 ---
 
-### 👤 Người 2: Nguyễn Xuân Tùng (2A202600247) - Sprint 2 Retrieval Owner
+### Người 2: Nguyễn Xuân Tùng (2A202600247) - Sprint 2 Retrieval Owner
 **Vai trò:** Backend Developer & Retrieval Specialist
 
 **Task Chính:**
-- ✅ Sprint 2 (60 phút): Implement retrieval + LLM layer
+- Sprint 2 (60 phút): Implement retrieval + LLM layer
   - Implement `retrieve_dense()` - ChromaDB cosine similarity search
     - Query embedding sử dụng text-embedding-3-small
     - Return top 10 candidates với score (1 - distance)
@@ -53,11 +53,11 @@
 
 ---
 
-### 👤 Người 3: Nguyễn Công Thành (2A202600142) - Sprint 4 Eval Owner
+### Người 3: Nguyễn Công Thành (2A202600142) - Sprint 4 Eval Owner
 **Vai trò:** Quality Assurance & Evaluation Lead
 
 **Task Chính:**
-- ✅ Sprint 4 (60 phút): Implement evaluation framework
+- Sprint 4 (60 phút): Implement evaluation framework
   - Implement 4 scoring metrics:
     - `score_faithfulness()` - Check keyword overlap: answer_keywords ∩ source_keywords
     - `score_relevance()` - Term matching: expected_answer_terms in generated_answer
@@ -69,7 +69,7 @@
     - `run_evaluation.py` - Full config comparison
   
   - Evaluate both configs on 10 test questions:
-    - Baseline (Dense): 4.20/5 ⭐
+    - Baseline (Dense): 4.20/5
     - Variant (Hybrid): 4.08/5
   
   - Generate evaluation outputs:
@@ -80,11 +80,11 @@
 
 ---
 
-### 👤 Người 4: Nguyễn Viết Hùng (2A202600240) - Sprint 3 Tuning Owner
+### Người 4: Nguyễn Viết Hùng (2A202600240) - Sprint 3 Tuning Owner
 **Vai trò:** Tuning & Optimization Lead
 
 **Task Chính:**
-- ✅ Sprint 3 (60 phút): Implement + test tuning variants
+- Sprint 3 (60 phút): Implement + test tuning variants
   - Implement `retrieve_sparse()` - BM25 keyword search
   - Implement `retrieve_hybrid()` - Dense + BM25 with RRF fusion
     - Dense weight: 0.6 (semantic)
@@ -97,26 +97,26 @@
 
 ---
 
-### 👤 Người 5: Đỗ Đình Hoàn (2A202600036) - Documentation Owner
+### Người 5: Đỗ Đình Hoàn (2A202600036) - Documentation Owner
 **Vai trò:** Documentation & Reporting Lead
 
 **Task Chính:**
 
 **Before 18:00 (Documentation):**
-- ✅ `docs/tuning-log.md` (Sprint 3 decisions)
+- `docs/tuning-log.md` (Sprint 3 decisions)
   - Giải thích lựa chọn các variant
   - Tại sao chọn Hybrid để test
   - Kết quả so sánh Baseline vs Hybrid
   - Recommendation: Baseline chosen
   
-- ✅ `docs/architecture.md` (System architecture documentation)
+- `docs/architecture.md` (System architecture documentation)
   - Overview của toàn bộ RAG pipeline (4 sprints)
   - Implementation details từ mỗi sprint
   - Performance metrics và comparison results (Baseline: 4.20/5 vs Hybrid: 4.08/5)
   - Final recommendation: Baseline selected
 
 **After 18:00 (Reports):**
-- 📋 `reports/group_report.md` (Group summary)
+- `reports/group_report.md` (Group summary)
   - Phân công công việc
   - Timeline: Sprint 1-4 execution
   - Kết quả cuối cùng
