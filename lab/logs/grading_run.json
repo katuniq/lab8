@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-13 18:40:35",
+  "timestamp": "2026-04-13 19:56:08",
   "baseline_config": {
     "retrieval_mode": "dense",
     "top_k_search": 10,
@@ -21,33 +21,33 @@
       "question": "SLA xử lý ticket P1 đã thay đổi như thế nào so với phiên bản trước?",
       "expected_answer": "Phiên bản hiện tại (v2026.1, có hiệu lực từ 2026-01-15) đã cập nhật SLA P1 resolution từ 6 giờ xuống còn 4 giờ. Phiên bản trước (v2025.3) không thay đổi SLA này.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "SLA xử lý ticket P1 đã thay đổi từ 6 giờ xuống 4 giờ trong phiên bản mới nhất [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 4
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/sla-p1-2026.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the updated SLA for ticket P1, which is stated in the provided chunks.",
+          "relevance": "The answer directly addresses the query by stating the specific change in SLA for P1 tickets, providing a clear comparison between the previous and current versions.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Missing: ['Không đề cập đến phiên bản hiện tại (v2026.1) và ngày có hiệu lực (2026-01-15).', 'Không đề cập đến phiên bản trước (v2025.3) và việc không thay đổi SLA.']"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "SLA xử lý ticket P1 đã thay đổi từ 6 giờ xuống 4 giờ cho quy trình khắc phục (resolution) trong phiên bản 2026.1 [2].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 4
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/sla-p1-2026.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the updated SLA for ticket P1, stating that the resolution time has changed from 6 hours to 4 hours in version 2026.1, which is directly supported by the provided context.",
+          "relevance": "The answer directly addresses the query by stating the specific change in SLA for P1 tickets, providing a clear comparison to the previous version.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Missing: ['Không đề cập đến ngày có hiệu lực của phiên bản 2026.1', 'Không đề cập đến phiên bản trước (v2025.3)']"
         }
       }
     },
@@ -57,33 +57,33 @@
       "question": "Khi làm việc remote, tôi phải dùng VPN và được kết nối trên tối đa bao nhiêu thiết bị?",
       "expected_answer": "Khi làm việc remote và truy cập hệ thống nội bộ, VPN là bắt buộc (theo HR Leave Policy). Phần mềm VPN là Cisco AnyConnect và mỗi tài khoản được kết nối VPN trên tối đa 2 thiết bị cùng lúc (theo IT Helpdesk FAQ).",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Bạn có thể kết nối VPN trên tối đa 2 thiết bị cùng lúc [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 3
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['hr/leave-policy-2026.pdf', 'support/helpdesk-faq.md']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the context regarding the limit of 2 devices for VPN connections.",
+          "relevance": "Answer directly addresses the query by providing the specific information about the maximum number of devices that can be connected to the VPN.",
+          "context_recall": "Retrieved: 2/2 expected sources",
+          "completeness": "Missing: ['VPN là bắt buộc khi làm việc remote', 'Phần mềm VPN là Cisco AnyConnect', 'Thông tin về HR Leave Policy', 'Thông tin từ IT Helpdesk FAQ']"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Bạn có thể kết nối VPN trên tối đa 2 thiết bị cùng lúc [2].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 3
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['hr/leave-policy-2026.pdf', 'support/helpdesk-faq.md']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the context regarding the limit of 2 devices for VPN connections.",
+          "relevance": "Answer directly addresses the query by specifying the maximum number of devices that can be connected to the VPN.",
+          "context_recall": "Retrieved: 2/2 expected sources",
+          "completeness": "Missing: ['VPN là bắt buộc khi làm việc remote', 'Phần mềm VPN là Cisco AnyConnect', 'Thông tin nguồn gốc từ HR Leave Policy và IT Helpdesk FAQ']"
         }
       }
     },
@@ -93,33 +93,33 @@
       "question": "Đơn hàng mua trong chương trình Flash Sale và đã kích hoạt sản phẩm có được hoàn tiền không?",
       "expected_answer": "Không được hoàn tiền. Đơn hàng rơi vào hai ngoại lệ cùng lúc: (1) đơn hàng áp dụng mã giảm giá chương trình Flash Sale và (2) sản phẩm đã được kích hoạt — cả hai đều thuộc danh sách ngoại lệ không được hoàn tiền theo Điều 3 của chính sách.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Đơn hàng mua trong chương trình Flash Sale và đã kích hoạt sản phẩm sẽ không được hoàn tiền, vì sản phẩm đã áp dụng mã giảm giá đặc biệt và đã được kích hoạt [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 3,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer correctly states that orders from the Flash Sale and activated products are not eligible for a refund, but it does not mention the requirement of submitting the refund request within 7 days, which is part of the conditions.",
+          "relevance": "The answer directly addresses the query by stating that orders from the Flash Sale program that have activated products are not eligible for refunds, providing a clear and complete response.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale và sản phẩm đã được kích hoạt sẽ không được hoàn tiền [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks regarding the conditions under which refunds are not applicable, specifically mentioning orders that have applied special discount codes and products that have been activated.",
+          "relevance": "The answer directly addresses the query by stating that orders made during the Flash Sale program with activated products are not eligible for refunds.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       }
     },
@@ -129,33 +129,33 @@
       "question": "Nếu chọn nhận store credit thay vì hoàn tiền, tôi được bao nhiêu phần trăm so với số tiền gốc?",
       "expected_answer": "Khách hàng có thể chọn nhận store credit (credit nội bộ) thay thế với giá trị 110% so với số tiền hoàn gốc. Đây là tùy chọn, không phải bắt buộc.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Nếu chọn nhận store credit, bạn sẽ được 110% so với số tiền gốc [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks about receiving store credit at 110% of the original amount.",
+          "relevance": "Answer directly and fully addresses the query by providing the specific percentage (110%) related to the store credit compared to the original amount.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Nếu chọn nhận store credit, bạn sẽ nhận được giá trị 110% so với số tiền gốc [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks regarding the option to receive store credit at 110% of the original amount.",
+          "relevance": "Answer directly and fully addresses the query by providing the percentage of store credit compared to the original amount.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       }
     },
@@ -165,33 +165,33 @@
       "question": "Contractor từ bên ngoài công ty có thể được cấp quyền Admin Access không? Nếu có, cần bao nhiêu ngày và có yêu cầu đặc biệt gì?",
       "expected_answer": "Có. Theo Access Control SOP, quy trình áp dụng cho cả nhân viên, contractor và third-party vendor. Admin Access (Level 4) cần phê duyệt từ IT Manager và CISO, thời gian xử lý 5 ngày làm việc, và có yêu cầu thêm: training bắt buộc về security policy.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Có, contractor từ bên ngoài công ty có thể được cấp quyền Admin Access. Thời gian xử lý là 5 ngày làm việc và yêu cầu thêm là phải hoàn thành training bắt buộc về security policy [2].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 1,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['it/access-control-sop.md']",
-          "completeness": "No valid answer"
+          "faithfulness": "The provided context does not mention that external contractors can be granted Admin Access. It only specifies that Admin Access is applicable to DevOps, SRE, and IT Admin roles.",
+          "relevance": "Answer directly and fully addresses the query by confirming that external contractors can be granted Admin Access, specifying the processing time of 5 working days, and mentioning the additional requirement of completing mandatory training on security policy.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Có, contractor từ bên ngoài công ty có thể được cấp quyền Admin Access tạm thời trong trường hợp khẩn cấp, tối đa 24 giờ sau khi được Tech Lead phê duyệt. Sau 24 giờ, phải có ticket chính thức hoặc quyền sẽ bị thu hồi tự động. Tất cả quyền tạm thời phải được ghi log vào hệ thống Security Audit [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 2
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['it/access-control-sop.md']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks regarding the temporary granting of Admin Access to contractors in emergency situations, including the requirement for Tech Lead approval, the 24-hour limit, and the logging of temporary permissions.",
+          "relevance": "The answer directly addresses the query by confirming that external contractors can be granted temporary Admin Access, specifying the time frame of 24 hours after Tech Lead approval, and mentioning the requirement for a formal ticket afterward.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Missing: ['Approval from IT Manager and CISO', 'Processing time of 5 working days', 'Mandatory training on security policy', 'No mention of contractors being treated the same as employees and third-party vendors']"
         }
       }
     },
@@ -201,33 +201,33 @@
       "question": "Lúc 2 giờ sáng xảy ra sự cố P1, on-call engineer cần cấp quyền tạm thời cho một engineer xử lý incident. Quy trình cụ thể như thế nào và quyền này tồn tại bao lâu?",
       "expected_answer": "On-call IT Admin có thể cấp quyền tạm thời (tối đa 24 giờ) sau khi được Tech Lead phê duyệt bằng lời. Sau 24 giờ, phải có ticket chính thức hoặc quyền bị thu hồi tự động. Mọi quyền tạm thời phải được ghi log vào hệ thống Security Audit. Liên hệ on-call qua hotline ext. 9999 (24/7) theo SLA P1.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Quy trình cấp quyền tạm thời cho engineer trong sự cố P1 như sau: On-call IT Admin có thể cấp quyền tạm thời (tối đa 24 giờ) sau khi được Tech Lead phê duyệt bằng lời. Sau 24 giờ, phải có ticket chính thức hoặc quyền sẽ bị thu hồi tự động. Tất cả quyền tạm thời phải được ghi log vào hệ thống Security Audit [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['it/access-control-sop.md', 'support/sla-p1-2026.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the process for granting temporary permissions during a P1 incident as described in the provided chunks, without introducing any additional information.",
+          "relevance": "Answer directly addresses the query by outlining the specific process for granting temporary permissions to an engineer during a P1 incident, including the approval requirement, duration of the permissions, and logging requirements.",
+          "context_recall": "Retrieved: 2/2 expected sources",
+          "completeness": "Complete"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Quy trình cấp quyền tạm thời cho engineer trong sự cố P1 như sau: On-call IT Admin có thể cấp quyền tạm thời (tối đa 24 giờ) sau khi được Tech Lead phê duyệt bằng lời. Sau 24 giờ, phải có ticket chính thức hoặc quyền sẽ bị thu hồi tự động. Tất cả quyền tạm thời phải được ghi log vào hệ thống Security Audit [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/2 expected sources. Missing: ['it/access-control-sop.md', 'support/sla-p1-2026.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the process for granting temporary permissions to engineers during a P1 incident as described in the provided chunks, without adding any extraneous information.",
+          "relevance": "Answer directly addresses the query by outlining the specific process for granting temporary permissions to an engineer during a P1 incident, including the approval requirement, duration of the permissions, and logging requirements.",
+          "context_recall": "Retrieved: 2/2 expected sources",
+          "completeness": "Complete"
         }
       }
     },
@@ -237,33 +237,33 @@
       "question": "Công ty sẽ phạt bao nhiêu nếu team IT vi phạm cam kết SLA P1?",
       "expected_answer": "Tài liệu hiện có không quy định mức phạt hay hình thức xử lý khi vi phạm SLA P1. Tài liệu sla-p1-2026.pdf chỉ mô tả quy trình xử lý và SLA target, không có điều khoản về penalty.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Tôi không biết.",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
+          "faithfulness": 1,
+          "relevance": 1,
           "context_recall": null,
-          "completeness": 0
+          "completeness": 1
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
+          "faithfulness": "The answer 'Tôi không biết' does not provide any relevant information based on the context provided in the chunks, which contain specific procedures and definitions related to IT incidents and equipment handling.",
+          "relevance": "The answer does not address the query at all.",
           "context_recall": "No expected sources",
-          "completeness": "No valid answer"
+          "completeness": "Missing: ['No information about penalties or handling violations of SLA P1', 'No reference to the document sla-p1-2026.pdf', 'No mention of SLA target or process described in the document']"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Tôi không biết.",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
+          "faithfulness": 1,
+          "relevance": 1,
           "context_recall": null,
-          "completeness": 0
+          "completeness": 1
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
+          "faithfulness": "The answer 'Tôi không biết' does not provide any relevant information or context from the retrieved chunks, indicating a lack of knowledge or response to the questions asked.",
+          "relevance": "The answer does not address the query at all.",
           "context_recall": "No expected sources",
-          "completeness": "No valid answer"
+          "completeness": "Missing: ['No information about penalties or handling violations of SLA P1', 'No reference to the document sla-p1-2026.pdf', 'No mention of SLA target or process description']"
         }
       }
     },
@@ -273,33 +273,33 @@
       "question": "Nhân viên phải báo trước bao nhiêu ngày để xin nghỉ phép năm? Con số này có giống với số ngày cần giấy tờ khi nghỉ ốm không?",
       "expected_answer": "Nghỉ phép năm cần báo trước ít nhất 3 ngày làm việc qua HR Portal. Nghỉ ốm cũng liên quan đến mốc 3 ngày: nếu nghỉ TRÊN 3 ngày liên tiếp thì cần giấy tờ y tế từ bệnh viện. Hai con số '3 ngày' này áp dụng cho hai tình huống khác nhau.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Nhân viên phải báo trước ít nhất 3 ngày làm việc để xin nghỉ phép năm [2]. Số ngày cần giấy tờ khi nghỉ ốm là nếu nghỉ trên 3 ngày liên tiếp, cần giấy tờ y tế từ bệnh viện [1]. Do đó, con số này không giống nhau.",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['hr/leave-policy-2026.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks regarding the notice period for annual leave and the requirement for medical documentation for sick leave.",
+          "relevance": "The answer directly addresses both parts of the query by providing the required notice period for annual leave and clarifying the difference regarding sick leave documentation.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Nhân viên phải báo trước ít nhất 3 ngày làm việc để xin nghỉ phép năm [2]. Số ngày cần giấy tờ khi nghỉ ốm là nếu nghỉ trên 3 ngày liên tiếp, cần giấy tờ y tế từ bệnh viện [1]. Do đó, con số này không giống nhau.",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['hr/leave-policy-2026.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks regarding the notice period for annual leave and the requirement for medical documentation for sick leave.",
+          "relevance": "The answer directly addresses both parts of the query by providing the required notice period for annual leave and explaining the difference in documentation needed for sick leave.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       }
     },
@@ -309,33 +309,33 @@
       "question": "Mật khẩu tài khoản công ty cần đổi định kỳ không? Nếu có, hệ thống sẽ nhắc nhở trước bao nhiêu ngày và đổi qua đâu?",
       "expected_answer": "Có. Mật khẩu phải được thay đổi mỗi 90 ngày. Hệ thống sẽ nhắc nhở 7 ngày trước khi hết hạn. Để đổi mật khẩu, truy cập https://sso.company.internal/reset hoặc liên hệ Helpdesk qua ext. 9000.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Có, mật khẩu cần thay đổi định kỳ mỗi 90 ngày. Hệ thống sẽ nhắc nhở 7 ngày trước khi hết hạn [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 4
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/helpdesk-faq.md']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the context about the requirement to change passwords every 90 days and the reminder system.",
+          "relevance": "The answer directly addresses both parts of the query: it confirms that the password needs to be changed periodically and specifies the frequency (every 90 days) and the reminder period (7 days before expiration).",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Missing: ['Cách đổi mật khẩu (đường link hoặc thông tin liên hệ Helpdesk)']"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Mật khẩu tài khoản công ty cần đổi định kỳ mỗi 90 ngày. Hệ thống sẽ nhắc nhở 7 ngày trước khi hết hạn [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 4
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['support/helpdesk-faq.md']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the context about the requirement to change the company account password every 90 days and the reminder system.",
+          "relevance": "Answer directly and fully addresses the query by providing specific information about the password change frequency, reminder period, and implies the method of change.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Missing: ['Để đổi mật khẩu, truy cập https://sso.company.internal/reset hoặc liên hệ Helpdesk qua ext. 9000.']"
         }
       }
     },
@@ -345,55 +345,55 @@
       "question": "Chính sách hoàn tiền hiện tại áp dụng cho đơn hàng đặt trước ngày 01/02/2026 không?",
       "expected_answer": "Không. Chính sách hoàn tiền phiên bản 4 có hiệu lực từ ngày 01/02/2026 và chỉ áp dụng cho các đơn hàng được đặt kể từ ngày này. Các đơn hàng đặt trước ngày này sẽ áp dụng theo chính sách hoàn tiền phiên bản 3.",
       "baseline": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Chính sách hoàn tiền hiện tại không áp dụng cho đơn hàng đặt trước ngày 01/02/2026. Các đơn hàng đặt trước ngày này sẽ áp dụng theo chính sách hoàn tiền phiên bản 3 [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks, stating that the current refund policy does not apply to orders placed before 01/02/2026 and that those orders will follow refund policy version 3.",
+          "relevance": "Answer directly and fully addresses the query by stating that the current refund policy does not apply to orders placed before the specified date.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       },
       "variant": {
-        "answer": "ERROR: No module named 'chromadb'",
+        "answer": "Chính sách hoàn tiền hiện tại không áp dụng cho đơn hàng đặt trước ngày 01/02/2026. Các đơn hàng đặt trước ngày này sẽ áp dụng theo chính sách hoàn tiền phiên bản 3 [1].",
         "scores": {
-          "faithfulness": 0,
-          "relevance": 0,
-          "context_recall": 1,
-          "completeness": 0
+          "faithfulness": 5,
+          "relevance": 5,
+          "context_recall": 5,
+          "completeness": 5
         },
         "notes": {
-          "faithfulness": "No valid answer",
-          "relevance": "No valid answer",
-          "context_recall": "Retrieved: 0/1 expected sources. Missing: ['policy/refund-v4.pdf']",
-          "completeness": "No valid answer"
+          "faithfulness": "The answer accurately reflects the information provided in the chunks regarding the applicability of the refund policy for orders placed before 01/02/2026.",
+          "relevance": "Answer directly and fully addresses the query by stating that the current refund policy does not apply to orders placed before the specified date.",
+          "context_recall": "Retrieved: 1/1 expected sources",
+          "completeness": "Complete"
         }
       }
     }
   ],
   "summary": {
     "baseline": {
-      "faithfulness": 0.0,
-      "relevance": 0.0,
-      "context_recall": 1.0,
-      "completeness": 0.0
+      "faithfulness": 4.0,
+      "relevance": 4.6,
+      "context_recall": 5.0,
+      "completeness": 4.2
     },
     "variant": {
-      "faithfulness": 0.0,
-      "relevance": 0.0,
-      "context_recall": 1.0,
-      "completeness": 0.0
+      "faithfulness": 4.6,
+      "relevance": 4.6,
+      "context_recall": 5.0,
+      "completeness": 3.9
     },
     "delta": {
-      "faithfulness": null,
-      "relevance": null,
+      "faithfulness": 0.5999999999999996,
+      "relevance": 0.0,
       "context_recall": 0.0,
-      "completeness": null
+      "completeness": -0.30000000000000027
     }
   }
 }
